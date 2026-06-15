@@ -135,30 +135,49 @@ metadata:
   sample_slug: my-solution
 ```
 
-### Template kinds
+### Template object kinds
 
-| Kind | `name:` is | `display_name:` | Lives at |
+Firstlanding's current `AgentTemplate` object has four nested template
+lists: `tools`, `routines`, `installations`, and `skills`. In solution
+bundles, the deployable agent may use inline objects for simple builtins, or
+`template_path:` refs for atomic library rows that should also appear in
+`solution.yaml.templates`.
+
+| Object | `name:` / handle is | Human label | Where to put it |
 | --- | --- | --- | --- |
-| `AgentTemplate` | the catalog display name | not used | `agents/<slug>.yaml` |
-| `AgentToolTemplate` | the snake_case tool function id | **REQUIRED** | `tools/<slug>.yaml` |
-| `AgentRoutineTemplate` | the kebab-case routine handle | **REQUIRED** | `routines/<slug>.yaml` |
+| `AgentTemplate` | catalog display name | `name:` | `agents/<slug>.yaml`; first `solution.yaml.templates` entry |
+| `AgentToolTemplate` | snake_case LLM function id for custom tools; builtin tools use `builtin_tool_key` | `display_name:` is **required** for standalone custom tool rows | Inline in `agents/<slug>.yaml` for builtins or simple custom tools; `tools/<tool>.yaml` + `template_path:` when standalone |
+| `AgentRoutineTemplate` | kebab-case routine handle | `display_name:` is **required** for standalone routine rows | Inline in `agents/<slug>.yaml` for preset/simple routines; `routines/<routine>.yaml` + `template_path:` when standalone |
+| `AgentInstallationTemplate` | installation kind, e.g. `integration/gmail`, `web/site`, `memory/long-term` | not used | Inline under `AgentTemplate.installations`; no standalone library row in this repo pattern |
+| `AgentSkillTemplate` | `config_ref` of an uploaded skill config | optional `instruction:` override | Inline under `AgentTemplate.skills`; upload the backing `skills/<slug>/SKILL.md` first |
 
-The deployable `AgentTemplate` references atomic tools/routines inline via
+The deployable `AgentTemplate` references atomic tools/routines via
 `template_path:` (the same files listed in `solution.yaml` `templates:`),
-and builtin tools as inline literals:
+and can declare builtin tools, installations, and skills inline:
 
 ```yaml
 tools:
-  - tool_type: builtin
+  - tool_type: builtin                   # bundle form used by current examples
     builtin_tool_key: knowledge_search
     status: active
   - template_path: tools/query-osv.yaml      # custom tool, also a library row
 routines:
   - template_path: routines/weekly-scan.yaml
+installations:
+  - install_type: memory/long-term       # bundle form used by current examples
+    config: {}
 skills:
   - config_ref: osv-triage-playbook          # a skill from upload_skills
     status: active
+    instruction: Use this skill for vulnerability triage.
 ```
+
+When authoring against the platform object shape directly, the equivalent
+nested keys are `kind:` for tools/installations (`kind: builtin`,
+`kind: custom`, `kind: integration/gmail`) and `handler_type:
+workflow_graph|script|preset` for tools/routines. Follow the local examples
+and let `archagent validate solution` tell you if the bundle DSL expects the
+bundle alias (`tool_type`, `install_type`) or the platform-native `kind`.
 
 ### Scripts (`.aascript`)
 

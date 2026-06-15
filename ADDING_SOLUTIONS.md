@@ -34,9 +34,8 @@ archagent create solution my-solution \
 4. Edit `solution.yaml`: keep `solution_id` stable, match
    `solution_version` to `sample.yaml`, set catalog tags, and list every
    template in `templates:`.
-5. Edit `agents/<slug>.yaml`: define the agent identity, builtin tools,
-   custom template references, skills, routines, installations, and any
-   setup actions.
+5. Edit `agents/<slug>.yaml`: define the agent identity, builtin/custom
+   tools, routines, installations, skills, and any setup actions.
 6. Add optional building blocks only when needed:
    - `tools/<tool>.yaml` and `.md` for custom tool library rows.
    - `routines/<routine>.yaml` and `.md` for standalone routines.
@@ -61,6 +60,12 @@ archagent create solution my-solution \
   `AgentToolTemplate.display_name` is required for the human label.
 - `AgentRoutineTemplate.name` is the kebab-case routine handle.
   `AgentRoutineTemplate.display_name` is required for the human label.
+- `AgentInstallationTemplate` entries live inline under the agent's
+  `installations:` list and declare the installation kind plus optional
+  config, for example `install_type: memory/long-term`.
+- `AgentSkillTemplate` entries live inline under the agent's `skills:` list
+  and point at uploaded `skills/<skill-slug>/SKILL.md` packages with
+  `config_ref: <skill-slug>`.
 - A script-backed tool uses `handler_type: script` and `config_ref:
   <script-stem>`, which must match `scripts/<script-stem>.aascript`.
 - Avoid lookup key collisions. If a tool and script share a logical name,
