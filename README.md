@@ -1,9 +1,18 @@
 # ArchAgents Solution Examples
 
-A collection of ready-to-clone **ArchAgents Solutions** — deployable agent
-bundles (agent + tools + routines + skills + scripts) you can install into
-your app with one command. Each lives under `solutions/<slug>/`. Browse
-them, copy the one closest to what you want, and tailor it.
+An open-source starter repo for managing **ArchAgents Solutions** —
+deployable agent bundles (agent + tools + routines + skills + scripts) you
+can install into your app with one command.
+
+The intended workflow is to clone this repo into your organization's own
+private GitHub repo, then use that private clone as the source of truth for
+your proprietary solutions, collaborators, CI, and release tarballs. Keep
+this public repo as the clean reference: copy patterns from the examples,
+but put customer-specific agents, private integrations, and internal
+workflow logic in your private clone.
+
+Each solution lives under `solutions/<slug>/`. Browse the examples here,
+copy the one closest to what you want, and tailor it in your private repo.
 
 CI validates every solution on each change and cuts a versioned release
 tarball per `version:` bump, so anything that lands on `main` is installable
@@ -32,6 +41,22 @@ archagent auth login
 
 This puts the `archagent` binary on your PATH.
 
+## Start a private solutions repo
+
+Create a private repo for your organization, then push a clone of this
+starter into it:
+
+```sh
+git clone https://github.com/ArchAstro/archagents-solution-examples.git my-org-solutions
+cd my-org-solutions
+git remote set-url origin https://github.com/<YourOrg>/<your-private-solutions-repo>.git
+git push -u origin main --tags
+```
+
+After that, add your real solutions under `solutions/`, invite only the
+people who should see those bundles, and let the included CI validate and
+package releases for that private repo.
+
 ## The examples
 
 | Solution | What it shows |
@@ -48,8 +73,9 @@ archagent import  solution ./hello-agent-v0.1.1.tar.gz
 
 ## Add your own solution
 
-Each solution is an independent directory under `solutions/`. CI picks up
-every one automatically — there's no central registry to edit.
+In your private clone, each solution is an independent directory under
+`solutions/`. CI picks up every one automatically — there's no central
+registry to edit.
 
 ```sh
 # 1. Scaffold a new solution (mints a stable solution_id for you)

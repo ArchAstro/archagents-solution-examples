@@ -1,12 +1,14 @@
 # Adding Solutions
 
-This repo is intentionally simple: every solution is a self-contained
+This repo is intentionally simple so teams can clone it into their own
+private organization repo and use that clone as the source of truth for
+their proprietary ArchAgents Solutions. Every solution is a self-contained
 directory under `solutions/<slug>/`. CI discovers any directory with a
 `sample.yaml`, validates it, lints it, packages it, and releases a tarball
 when its version changes.
 
-Use this guide when adding another solution. Use `AGENTS.md` when you need
-the full field-by-field reference.
+Use this guide when adding another solution to your private clone. Use
+`AGENTS.md` when you need the full field-by-field reference.
 
 ## Start From The Right Example
 
