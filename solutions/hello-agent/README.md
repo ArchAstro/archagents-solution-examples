@@ -1,6 +1,6 @@
 # Hello Agent
 
-The smallest valid ArchAstro Solution — a single agent with builtin tools,
+The smallest valid ArchAgents Solution — a single agent with builtin tools,
 no custom scripts or setup. The best starting point for a new solution.
 
 ```
@@ -17,7 +17,7 @@ hello-agent/
 ```sh
 archagent validate solution solutions/hello-agent
 archagent package  solution solutions/hello-agent
-archagent import   solution ./hello-agent-v0.1.0.tar.gz
+archagent import   solution ./hello-agent-v0.1.1.tar.gz
 ```
 
 ## Grow it

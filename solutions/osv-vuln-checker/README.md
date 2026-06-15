@@ -1,6 +1,6 @@
 # OSV Vulnerability Checker
 
-An example ArchAstro **Solution** bundle — a deployable agent that scans
+An example ArchAgents **Solution** bundle — a deployable agent that scans
 your dependencies against [OSV.dev](https://osv.dev) on a schedule and
 triages what it finds. Copy this directory and tailor it to build your own.
 
@@ -49,7 +49,7 @@ archagent package  solution solutions/osv-vuln-checker   # build the .tar.gz
 
 ```sh
 archagent package solution solutions/osv-vuln-checker
-archagent import  solution ./osv-vuln-checker-v0.1.0.tar.gz
+archagent import  solution ./osv-vuln-checker-v0.1.1.tar.gz
 ```
 
 See the repo root `README.md` and `AGENTS.md` for the full authoring guide.

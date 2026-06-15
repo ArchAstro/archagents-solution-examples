@@ -1,0 +1,40 @@
+name: check-solution-version-bumps
+
+# Fails PRs where an existing solution directory changed without a
+# corresponding version bump in solutions/<slug>/sample.yaml. Without this,
+# release.yml validates the new bytes but skips publishing when
+# <slug>-<version> already exists.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "solutions/**"
+      - "scripts/check_solution_version_bumps.py"
+      - "scripts/test_check_solution_version_bumps.py"
+      - ".github/workflows/check-solution-version-bumps.yml"
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run unit tests
+        run: python3 scripts/test_check_solution_version_bumps.py
+
+  check:
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Needed to diff solution directories against the PR base branch.
+          fetch-depth: 0
+
+      - name: Check version bumps for changed solutions
+        # Route github.base_ref through env rather than interpolating it
+        # directly into the run body. The shell treats it as data, not code.
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: python3 scripts/check_solution_version_bumps.py "origin/${BASE_REF}"

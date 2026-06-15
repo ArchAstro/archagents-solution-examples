@@ -1,6 +1,6 @@
-# ArchAstro Solution Examples
+# ArchAgents Solution Examples
 
-A collection of ready-to-clone **ArchAstro Solutions** — deployable agent
+A collection of ready-to-clone **ArchAgents Solutions** — deployable agent
 bundles (agent + tools + routines + skills + scripts) you can install into
 your app with one command. Each lives under `solutions/<slug>/`. Browse
 them, copy the one closest to what you want, and tailor it.
@@ -8,14 +8,18 @@ them, copy the one closest to what you want, and tailor it.
 CI validates every solution on each change and cuts a versioned release
 tarball per `version:` bump, so anything that lands on `main` is installable
 with `archagent import solution`.
+PR CI also requires existing solutions to bump `sample.yaml` `version:` when
+their files change, so release automation cannot silently skip edited bytes.
 
 > Working with Claude Code or another coding agent in this repo? It reads
 > **`AGENTS.md`** (and the `CLAUDE.md` symlink) for the full authoring
 > guide — point it there.
+>
+> Adding a solution yourself? Start with **[`ADDING_SOLUTIONS.md`](ADDING_SOLUTIONS.md)**.
 
 ## Prerequisites
 
-Install the ArchAstro CLI and sign in:
+Install the ArchAgents CLI and sign in:
 
 ```sh
 # macOS / Linux
@@ -39,13 +43,13 @@ Install one straight from this repo to try it:
 
 ```sh
 archagent package solution solutions/hello-agent
-archagent import  solution ./hello-agent-v0.1.0.tar.gz
+archagent import  solution ./hello-agent-v0.1.1.tar.gz
 ```
 
 ## Add your own solution
 
 Each solution is an independent directory under `solutions/`. CI picks up
-every one automatically — there's nothing to register.
+every one automatically — there's no central registry to edit.
 
 ```sh
 # 1. Scaffold a new solution (mints a stable solution_id for you)
@@ -54,25 +58,31 @@ archagent create solution my-solution \
   --tagline "One line shown in the catalog." \
   --target-dir solutions
 
-# 2. Edit solutions/my-solution/ — see AGENTS.md for the full guide.
+# 2. Edit solutions/my-solution/
+#    - start from hello-agent for a minimal agent
+#    - compare osv-vuln-checker for tools, scripts, routines, skills, and setup
 
-# 3. Verify (run from the repo root)
-archagent validate solution solutions/my-solution    # schema + script check
+# 3. Verify while iterating (run from the repo root)
+archagent validate solution solutions/my-solution --schema-only
 archagent lint     solution solutions/my-solution --strict
 
-# 4. Package + smoke-test
-archagent package solution solutions/my-solution
-archagent import  solution ./my-solution-v0.1.0.tar.gz
+# 4. Run the full check, package, and smoke-test
+archagent validate solution solutions/my-solution
+archagent package  solution solutions/my-solution --output-dir dist
+archagent import   solution dist/my-solution-v0.1.0.tar.gz
 ```
 
 `validate --schema-only` and `lint` run fully offline; the full `validate`
 and the import talk to the platform (sign in with `archagent auth login`).
+See [`ADDING_SOLUTIONS.md`](ADDING_SOLUTIONS.md) for the checklist, wiring
+rules, and release steps.
 
 ## Repository layout
 
 ```
 .
 ├── README.md                  # this file
+├── ADDING_SOLUTIONS.md        # human-facing checklist for new solutions
 ├── AGENTS.md                  # authoring guide for coding agents
 ├── CLAUDE.md -> AGENTS.md      # symlink so Claude Code picks it up
 ├── .github/workflows/
@@ -87,6 +97,7 @@ and the import talk to the platform (sign in with `archagent auth login`).
 
 | Workflow | Trigger | What it does |
 | --- | --- | --- |
+| **check-solution-version-bumps** | PRs touching `solutions/**` | Fails if an existing solution changed without a `sample.yaml` `version:` bump. |
 | **verify** | PR + push to `main` | For **every** solution: `validate --schema-only` + `lint --strict` + `package`. No secrets required. |
 | **release** | push to `main` | For every solution whose `version:` has no matching GitHub Release, packages it and cuts `<slug>-<version>.tar.gz`. Uses the default `GITHUB_TOKEN`. |
 
@@ -107,5 +118,5 @@ platform-backed `.aascript` check. It only runs if you set
 
 ## License
 
-Provided as-is for building on ArchAstro. Replace this section with your own
+Provided as-is for building on ArchAgents. Replace this section with your own
 license.

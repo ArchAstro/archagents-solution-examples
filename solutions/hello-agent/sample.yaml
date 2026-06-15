@@ -1,9 +1,9 @@
 schema_version: 2
 
-version: v0.1.0
+version: v0.1.1
 
 name: "Hello Agent"
-tagline: "The smallest possible ArchAstro solution — one agent with builtin tools. Copy it to start something new."
+tagline: "The smallest possible ArchAgents solution — one agent with builtin tools. Copy it to start something new."
 
 min_cli_version: "0.28.0"
 
