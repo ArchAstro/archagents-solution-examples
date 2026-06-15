@@ -118,5 +118,4 @@ platform-backed `.aascript` check. It only runs if you set
 
 ## License
 
-Provided as-is for building on ArchAgents. Replace this section with your own
-license.
+MIT. See [`LICENSE`](LICENSE).
