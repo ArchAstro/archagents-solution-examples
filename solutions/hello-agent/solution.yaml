@@ -1,7 +1,7 @@
 kind: Solution
 lookup_key: hello-agent-solution
 solution_id: e2d9c4a1-7b35-4c82-a1f6-3d8b0e5c9a27
-solution_version: v0.1.0
+solution_version: v0.1.1
 name: "Hello Agent"
 description: "A minimal starter agent with builtin knowledge search and memory."
 
@@ -14,7 +14,7 @@ tag_keys:
 readme: |
   # Hello Agent
 
-  The smallest valid ArchAstro Solution: one agent, builtin tools, no custom
+  The smallest valid ArchAgents Solution: one agent, builtin tools, no custom
   scripts or tools. Use it as the skeleton for a new solution, then add
   tools, routines, skills, and scripts as you need them — see the
   `osv-vuln-checker` example for the full set.

@@ -11,7 +11,7 @@
 schema_version: 2
 
 # Bump this to cut a new release of the bundle.
-version: v0.1.0
+version: v0.1.1
 
 name: "OSV Vulnerability Checker"
 tagline: "An agent that scans your dependencies against OSV.dev and triages what it finds. Starter solution — copy + tailor to your stack."

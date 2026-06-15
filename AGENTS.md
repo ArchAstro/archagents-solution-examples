@@ -1,9 +1,11 @@
-# AGENTS.md — authoring ArchAstro Solutions
+# AGENTS.md — authoring ArchAgents Solutions
 
 Guidance for coding agents (Claude Code, etc.) working in this repository.
 `CLAUDE.md` is a symlink to this file.
+`ADDING_SOLUTIONS.md` is the human-facing checklist; keep it aligned when
+you change the authoring flow here.
 
-This repo builds **ArchAstro Solutions**: deployable bundles that ship an
+This repo builds **ArchAgents Solutions**: deployable bundles that ship an
 agent plus its custom tools, routines, skills, scripts, and a post-install
 setup checklist. Each solution lives in `solutions/<slug>/`. CI validates
 every solution and cuts a versioned release tarball per `version:` bump.
@@ -240,7 +242,9 @@ Reference an uploaded skill from the agent with `skills: [{ config_ref:
 
 - One solution per `solutions/<slug>/`. `<slug>` is lowercase kebab-case.
 - Keep `sample.yaml.version` and `solution.yaml.solution_version` in sync;
-  bump both to release.
+  bump both to release. PR CI fails changes to an existing
+  `solutions/<slug>/` directory unless `sample.yaml.version` changes from
+  the PR base branch.
 - Never change a published `solution_id` — it anchors every prior install.
 - Don't commit real secrets. `env.example` holds placeholders only.
 - Before opening a PR: `archagent validate solution <path>` and

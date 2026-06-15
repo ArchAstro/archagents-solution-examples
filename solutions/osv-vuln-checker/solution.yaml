@@ -14,7 +14,7 @@ lookup_key: osv-vuln-checker-solution
 # Mint your own for a new solution: `archagent create solution <slug>` does
 # this for you, or `python -c "import uuid; print(uuid.uuid4())"`.
 solution_id: c7a91e2d-4b86-4f13-9a52-0d3e6b8c1f47
-solution_version: v0.1.0
+solution_version: v0.1.1
 name: "OSV Vulnerability Checker"
 description: "Scans your dependencies against OSV.dev on a schedule and triages what it finds."
 

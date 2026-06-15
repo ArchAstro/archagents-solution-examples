@@ -30,7 +30,7 @@ This is a starting point. Common next steps:
 
 - Add a `create-pull-request` tool so the agent can open auto-fix PRs for
   Outcome B findings (see the `security-triage-agent-sample` in the
-  ArchAstro catalog for a worked example).
+  ArchAgents catalog for a worked example).
 - Point the scan at a real lockfile instead of a hand-maintained list.
 - Index your internal security policy in `knowledge_search` and have the
   playbook cite it when setting severity.

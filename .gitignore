@@ -1,5 +1,6 @@
 # Packaged release tarballs — built by `archagent package solution`.
 *.tar.gz
+dist/
 
 # Local env files (env.example is committed; real values are not).
 .env
@@ -8,5 +9,6 @@
 # OS / editor cruft
 .DS_Store
 *.swp
+__pycache__/
 .idea/
 .vscode/
