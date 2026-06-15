@@ -1,0 +1,15 @@
+schema_version: 2
+
+version: v0.1.0
+
+name: "Hello Agent"
+tagline: "The smallest possible ArchAstro solution — one agent with builtin tools. Copy it to start something new."
+
+min_cli_version: "0.28.0"
+
+# The minimal deploy sequence: just import the Solution. No upload_scripts /
+# upload_skills steps because this bundle ships no scripts or skills yet —
+# add them (and the matching steps) as your agent grows.
+steps:
+  - type: deploy_solution
+    solution_file: solution.yaml

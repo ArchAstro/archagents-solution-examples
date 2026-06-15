@@ -1,0 +1,58 @@
+kind: AgentRoutineTemplate
+lookup_key: osv-routine-weekly-scan
+# `name` is the kebab-case routine handle; `display_name` is the human
+# label (REQUIRED on every AgentRoutineTemplate).
+name: weekly-scan
+display_name: "Weekly Dependency Scan"
+description: Scan the configured packages against OSV.dev once a week and triage findings.
+handler_type: preset
+preset_name: do_task
+event_type: schedule.cron
+# Every Monday at 08:00. Standard 5-field cron.
+schedule: 0 8 * * 1
+preset_config:
+  instructions: |
+    Run the weekly dependency scan.
+
+    For each `name@version` in MONITORED_PACKAGES:
+    1. Call `query_osv` with the package name, version, and ecosystem.
+    2. Triage every finding using the `osv-triage-playbook` skill.
+    3. memory_store your decision so next week's scan is faster.
+
+    Post a one-paragraph summary of what you found and what you did. If
+    NOTIFY_CHANNEL is set, post it there too.
+status: active
+
+# This routine needs a list of packages to watch, and a one-time check
+# that the OSV API is reachable from the agent's runtime.
+setup_actions:
+  - action_type: env_var
+    title: Set MONITORED_PACKAGES
+    description: |
+      Comma-separated `ecosystem:name@version` entries to scan weekly.
+      Example: `npm:lodash@4.17.20,PyPI:requests@2.25.0`.
+    params:
+      key: MONITORED_PACKAGES
+      scope: agent_env_var
+    verify_config:
+      type: secret_present
+    dedupe_key: MONITORED_PACKAGES
+    required: true
+    sort_order: 0
+
+  - action_type: custom
+    title: Verify the OSV.dev API is reachable
+    description: |
+      Runs a one-off query against OSV.dev to confirm the agent's runtime
+      can reach the public API before the first scheduled scan.
+    params:
+      id: verify-osv-reachable
+    verify_config:
+      type: script_ref
+      # Must match the stem of a script shipped under scripts/.
+      script_ref: verify-osv-reachable
+    dedupe_key: verify-osv-reachable
+    required: true
+    sort_order: 1
+    depends_on:
+      - MONITORED_PACKAGES

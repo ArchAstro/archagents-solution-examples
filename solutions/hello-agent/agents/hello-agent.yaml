@@ -1,0 +1,49 @@
+kind: AgentTemplate
+# A solution-mode template must NOT declare `agent_key:`.
+name: Hello Agent
+description: >-
+  A friendly starter agent. It can search your knowledge base and remember
+  context across conversations — the minimal baseline you extend with your
+  own tools, routines, and skills.
+identity: |
+  You are a helpful assistant. Use knowledge_search when a question might be
+  answered by indexed documents, and remember useful context with memory so
+  conversations build on each other.
+
+  Replace this identity with your agent's real job.
+
+# Builtin tools only — inline literals keyed into the builtin registry.
+tools:
+  - tool_type: builtin
+    builtin_tool_key: knowledge_search
+    status: active
+  - tool_type: builtin
+    builtin_tool_key: memory
+    status: active
+  - tool_type: builtin
+    builtin_tool_key: long_term_memory
+    status: active
+  - tool_type: builtin
+    builtin_tool_key: skills
+    status: active
+
+routines:
+  - name: Participate in conversations
+    description: Join threads when added so users can talk to this agent directly.
+    handler_type: preset
+    preset_name: participate
+    event_type: thread.session.join
+    event_config:
+      thread.session.join:
+        filters: {}
+    status: active
+
+installations:
+  - install_type: memory/long-term
+    config: {}
+  - install_type: archastro/thread
+    config: {}
+
+metadata:
+  category: general
+  version: "1.0"

@@ -1,0 +1,74 @@
+# solution.yaml — the catalog-facing wrapper around this bundle.
+#
+# `templates:` is a multi-template list: the deployable AgentTemplate plus
+# every atomic AgentToolTemplate / AgentRoutineTemplate this Solution
+# ships. Each entry imports as an independent library row — a user can
+# install just `query-osv` or just `weekly-scan` standalone, or deploy the
+# whole agent. The deployable agent (the first entry) references the
+# atomic templates inline via `template_path:` in its tools/routines lists.
+
+kind: Solution
+lookup_key: osv-vuln-checker-solution
+# solution_id is a stable UUID4. KEEP IT STABLE across re-publishes — the
+# platform derives the per-import lookup_key/virtual_path prefixes from it.
+# Mint your own for a new solution: `archagent create solution <slug>` does
+# this for you, or `python -c "import uuid; print(uuid.uuid4())"`.
+solution_id: c7a91e2d-4b86-4f13-9a52-0d3e6b8c1f47
+solution_version: v0.1.0
+name: "OSV Vulnerability Checker"
+description: "Scans your dependencies against OSV.dev on a schedule and triages what it finds."
+
+# Catalog taxonomy. category_keys shelf the bundle in the Library carousel;
+# tag_keys feed the tag-filter picker. `sample` marks this as a reference
+# starter. Swap these for your own once you tailor the bundle.
+category_keys:
+  - sample
+  - security
+tag_keys:
+  - dependency-scanning
+  - vulnerability-management
+  - osv
+
+readme: |
+  # OSV Vulnerability Checker
+
+  A starter agent that checks your dependencies against
+  [OSV.dev](https://osv.dev) (the open vulnerability database — no API key
+  required) and triages what it finds using a built-in playbook skill.
+
+  ## Architecture
+
+  ![Architecture overview](diagrams/architecture.svg)
+
+  ## What it ships
+
+  - **Tool** `query-osv` — looks up known vulnerabilities for a package +
+    version + ecosystem (public OSV.dev API, no auth).
+  - **Routine** `weekly-scan` — a cron routine that walks your monitored
+    packages and triages findings.
+  - **Skill** `osv-triage-playbook` — the rubric the agent follows to
+    decide whether a finding is noise, auto-fixable, or needs a human.
+
+  Each tool and routine is also a standalone library row — install just
+  the pieces you want and reference them from your own agent.
+
+assets:
+  - asset_path: diagrams/architecture.svg
+
+templates:
+  # The deployable AgentTemplate is always the first entry. `readme_path:`
+  # is the per-template body the Library inspector renders.
+  - template_path: agents/osv-vuln-checker.yaml
+    readme_path: agents/osv-vuln-checker.md
+
+  # Atomic AgentToolTemplate library row.
+  - template_path: tools/query-osv.yaml
+    readme_path: tools/query-osv.md
+
+  # Atomic AgentRoutineTemplate library row.
+  - template_path: routines/weekly-scan.yaml
+    readme_path: routines/weekly-scan.md
+
+metadata:
+  category: sample
+  sample_slug: osv-vuln-checker

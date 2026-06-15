@@ -1,0 +1,106 @@
+kind: AgentTemplate
+# NOTE: a solution-mode template must NOT declare `agent_key:` — the
+# validator rejects it (deploy_solution publishes a library row, it does
+# not provision a runtime agent, so agent_key has no meaning here).
+name: OSV Vulnerability Checker
+description: >-
+  Checks your dependencies against OSV.dev on a schedule, triages each
+  finding with the bundled playbook skill, and tells you which ones are
+  noise, which are easy fixes, and which need a human.
+identity: |
+  You are a pragmatic security engineer who keeps an eye on dependency
+  vulnerabilities. You are precise, you avoid alarmism, and you always
+  explain *why* something is or isn't a real risk.
+
+  ## How you work
+
+  1. When asked to scan, call `query_osv` for each package + version +
+     ecosystem you've been given (or that you find in a lockfile).
+  2. Triage every finding using the `osv-triage-playbook` skill — it
+     tells you how to classify findings into noise / auto-fix / escalate.
+  3. Remember your decisions with `memory_store` so you don't re-litigate
+     the same finding next week.
+
+  Be direct. If everything is noise, say so plainly. When you flag a real
+  risk, name the CVE and the affected package + version.
+
+# Tools: builtin entries are inline literals (keys into the builtin
+# registry). The custom `query-osv` tool is attached via `template_path:`,
+# which also ships it as a standalone library row in solution.yaml.
+tools:
+  - tool_type: builtin
+    builtin_tool_key: knowledge_search
+    status: active
+  - tool_type: builtin
+    builtin_tool_key: memory
+    status: active
+  - tool_type: builtin
+    builtin_tool_key: long_term_memory
+    status: active
+  - tool_type: builtin
+    builtin_tool_key: skills
+    status: active
+
+  - template_path: tools/query-osv.yaml
+
+# Skills the agent can reach for. `config_ref` points at a skill uploaded
+# by the `upload_skills` step (matched by its directory name / lookup_key).
+skills:
+  - config_ref: osv-triage-playbook
+    status: active
+
+# Routines: the generic preset routines (participate, auto-memory) stay
+# inline. The substantive `weekly-scan` routine is split out under
+# routines/ so it can be installed standalone alongside the agent.
+routines:
+  - name: Participate in conversations
+    description: Join threads when added so users can ask about vulnerabilities ad hoc.
+    handler_type: preset
+    preset_name: participate
+    event_type: thread.session.join
+    event_config:
+      thread.session.join:
+        filters: {}
+    status: active
+
+  - template_path: routines/weekly-scan.yaml
+
+  - name: Auto-capture memories
+    handler_type: preset
+    preset_name: auto_memory_capture
+    event_type: thread.session.leave
+    event_config:
+      thread.session.leave:
+        filters:
+          subject_is_agent: true
+    status: active
+
+installations:
+  - install_type: memory/long-term
+    config: {}
+  - install_type: archastro/thread
+    config: {}
+
+# Cross-cutting setup_actions live on the template body. Multi-template
+# Solutions use inline `setup_actions:` (the `action_type:` discriminator)
+# rather than the catalog `setup_requirements:` block. `dedupe_key:` is the
+# cross-template idempotency key — two templates that imprint the same
+# logical action share a key and produce one checklist row.
+setup_actions:
+  - action_type: env_var
+    title: Set NOTIFY_CHANNEL
+    description: |
+      Optional Slack channel (e.g. `#security`) to post the weekly triage
+      summary to. Leave blank to keep results in-thread only.
+    params:
+      key: NOTIFY_CHANNEL
+      scope: agent_env_var
+    verify_config:
+      type: secret_present
+    dedupe_key: NOTIFY_CHANNEL
+    required: false
+    sort_order: 0
+
+metadata:
+  category: security
+  version: "1.0"

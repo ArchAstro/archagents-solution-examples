@@ -1,0 +1,21 @@
+// verify-osv-reachable — setup verifier for the weekly-scan routine.
+//
+// Confirms the agent's runtime can reach the public OSV.dev API by running
+// a single known query. Returns { ok: true } when the API responds, so the
+// post-install setup checklist can mark this requirement satisfied.
+
+let http = import("requests")
+
+let response = http.post("https://api.osv.dev/v1/query", {
+  headers: {"Content-Type": "application/json"},
+  body: {
+    "package": { "name": "lodash", "ecosystem": "npm" },
+    "version": "4.17.20"
+  }
+})
+
+{
+  "ok": response.status == 200,
+  "status": response.status,
+  "message": if (response.status == 200) { "OSV.dev is reachable" } else { "OSV.dev returned a non-200 status" }
+}

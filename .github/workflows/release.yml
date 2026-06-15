@@ -1,0 +1,78 @@
+name: release
+
+# For every solution under solutions/, if the version in its sample.yaml
+# does not yet have a corresponding GitHub Release, cut one with the whole
+# solution directory packaged as <slug>-<version>.tar.gz.
+#
+# Runs on every push to main. Idempotent: re-running with no version bumps
+# is a no-op (the release-exists check short-circuits). To publish a new
+# version, bump `version:` in the solution's sample.yaml and merge to main.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "solutions/**"
+      - ".github/workflows/release.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install archagent CLI
+        env:
+          ARCHAGENT_INSTALL_DIR: ${{ runner.temp }}/bin
+          ARCHAGENT_INSTALL_SKIP_COMPLETIONS: "true"
+          ARCHAGENT_INSTALL_SKIP_PATH_UPDATE: "true"
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/ArchAstro/archagents/main/install.sh | bash
+          echo "${{ runner.temp }}/bin" >> "$GITHUB_PATH"
+
+      - name: Cut releases for any new solution versions
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+
+          for sample in solutions/*/sample.yaml; do
+            dir="$(dirname "$sample")"
+            slug="$(basename "$dir")"
+
+            # Pull `version: vX.Y.Z` out of sample.yaml (tolerates quotes).
+            version="$(grep -E '^version:' "$sample" | head -1 \
+              | sed -E 's/^version:[[:space:]]*"?([^"[:space:]]+)"?.*$/\1/')"
+
+            if [ -z "$version" ]; then
+              echo "::warning::$dir has no version: in sample.yaml, skipping"
+              continue
+            fi
+
+            tag="${slug}-${version}"
+            tarball="${slug}-${version}.tar.gz"
+
+            if gh release view "$tag" >/dev/null 2>&1; then
+              echo "✓ $tag already released, skipping"
+              continue
+            fi
+
+            echo "→ cutting release $tag from $dir"
+            # `package` validates the bundle, then writes the tarball — the
+            # same archive `archagent import solution ./<tarball>` consumes.
+            archagent package solution "$dir" --output-dir .
+
+            # --latest=false: each solution is independently versioned, so
+            # there is no meaningful repo-level "latest" release to claim.
+            gh release create "$tag" "$tarball" \
+              --title "$slug $version" \
+              --notes "Released from $dir/sample.yaml in ${GITHUB_SHA}." \
+              --latest=false
+
+            rm -f "$tarball"
+          done

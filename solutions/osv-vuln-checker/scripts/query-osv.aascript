@@ -1,0 +1,20 @@
+// query-osv — look up known vulnerabilities for a package version.
+//
+// Tool inputs arrive on `$`: $.package_name, $.ecosystem, $.version.
+// Calls the public OSV.dev query API (no auth) and returns its response
+// body — a list of vulnerabilities affecting the given version.
+
+let http = import("requests")
+
+let response = unwrap(http.post("https://api.osv.dev/v1/query", {
+  headers: {"Content-Type": "application/json"},
+  body: {
+    "package": {
+      "name": $.package_name,
+      "ecosystem": $.ecosystem
+    },
+    "version": $.version
+  }
+}))
+
+response.body

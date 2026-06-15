@@ -1,0 +1,30 @@
+# sample.yaml — the source of truth for this bundle's deploy sequence and
+# catalog version. Edit it, then validate + package with the CLI:
+#
+#   archagent validate solution solutions/osv-vuln-checker
+#   archagent lint     solution solutions/osv-vuln-checker
+#   archagent package  solution solutions/osv-vuln-checker
+#
+# CI cuts a GitHub Release named "<slug>-<version>" with the tarball every
+# time this `version:` changes on main (see .github/workflows/release.yml).
+
+schema_version: 2
+
+# Bump this to cut a new release of the bundle.
+version: v0.1.0
+
+name: "OSV Vulnerability Checker"
+tagline: "An agent that scans your dependencies against OSV.dev and triages what it finds. Starter solution — copy + tailor to your stack."
+
+# Minimum CLI version that can install this bundle.
+min_cli_version: "0.28.0"
+
+# Deploy steps, run top-to-bottom against the caller's app. Every upload_*
+# step must come before the deploy_* step that references its output.
+steps:
+  - type: upload_scripts        # .aascript tool/verifier implementations
+    source_dir: scripts
+  - type: upload_skills         # SKILL.md instruction packages
+    source_dir: skills
+  - type: deploy_solution       # import the catalog Solution wrapper
+    solution_file: solution.yaml

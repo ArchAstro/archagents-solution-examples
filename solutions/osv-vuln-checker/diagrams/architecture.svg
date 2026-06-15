@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 300" font-family="-apple-system, system-ui, sans-serif">
+  <rect x="0" y="0" width="640" height="300" fill="#ffffff"/>
+
+  <!-- schedule trigger -->
+  <rect x="24" y="120" width="120" height="56" rx="8" fill="#eef2ff" stroke="#6366f1" stroke-width="1.5"/>
+  <text x="84" y="146" text-anchor="middle" font-size="13" font-weight="600" fill="#3730a3">weekly-scan</text>
+  <text x="84" y="164" text-anchor="middle" font-size="11" fill="#4f46e5">cron · Mon 08:00</text>
+
+  <!-- agent -->
+  <rect x="220" y="108" width="160" height="80" rx="8" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+  <text x="300" y="138" text-anchor="middle" font-size="14" font-weight="600" fill="#14532d">OSV Vuln Checker</text>
+  <text x="300" y="158" text-anchor="middle" font-size="11" fill="#15803d">query_osv · skill</text>
+  <text x="300" y="174" text-anchor="middle" font-size="11" fill="#15803d">memory</text>
+
+  <!-- osv api -->
+  <rect x="460" y="40" width="150" height="56" rx="8" fill="#fff7ed" stroke="#ea580c" stroke-width="1.5"/>
+  <text x="535" y="64" text-anchor="middle" font-size="13" font-weight="600" fill="#9a3412">OSV.dev API</text>
+  <text x="535" y="82" text-anchor="middle" font-size="11" fill="#c2410c">public · no auth</text>
+
+  <!-- outcomes -->
+  <rect x="460" y="120" width="150" height="36" rx="6" fill="#f9fafb" stroke="#9ca3af" stroke-width="1.25"/>
+  <text x="535" y="143" text-anchor="middle" font-size="11" fill="#374151">A · noise (remember)</text>
+  <rect x="460" y="166" width="150" height="36" rx="6" fill="#f9fafb" stroke="#9ca3af" stroke-width="1.25"/>
+  <text x="535" y="189" text-anchor="middle" font-size="11" fill="#374151">B · easy fix</text>
+  <rect x="460" y="212" width="150" height="36" rx="6" fill="#f9fafb" stroke="#9ca3af" stroke-width="1.25"/>
+  <text x="535" y="235" text-anchor="middle" font-size="11" fill="#374151">C · escalate to human</text>
+
+  <!-- arrows -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6b7280"/>
+    </marker>
+  </defs>
+  <line x1="144" y1="148" x2="216" y2="148" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="380" y1="132" x2="456" y2="80" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="456" y1="92" x2="382" y2="140" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="382" y1="150" x2="456" y2="140" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="382" y1="162" x2="456" y2="184" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <line x1="382" y1="172" x2="456" y2="226" stroke="#6b7280" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+  <text x="300" y="280" text-anchor="middle" font-size="11" fill="#9ca3af">Triage each finding into exactly one durable outcome.</text>
+</svg>

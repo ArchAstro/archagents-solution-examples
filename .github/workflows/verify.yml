@@ -1,0 +1,110 @@
+name: verify
+
+# Verify every solution under solutions/ on every PR and push to main.
+#
+#   - `verify` runs offline (no secrets): schema validation + the
+#     best-practice lint gate + a packaging dry-run. This is the gate that
+#     keeps malformed bundles out of main.
+#   - `validate-scripts` is OPTIONAL — it runs the platform-backed semantic
+#     check of every .aascript and only runs when you've configured the
+#     ARCHASTRO_CI_ACCESS_TOKEN secret (see the README "CI" section). It's
+#     safe to leave the secret unset; the job no-ops.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "solutions/**"
+      - ".github/workflows/verify.yml"
+  pull_request:
+    paths:
+      - "solutions/**"
+      - ".github/workflows/verify.yml"
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install archagent CLI
+        env:
+          ARCHAGENT_INSTALL_DIR: ${{ runner.temp }}/bin
+          ARCHAGENT_INSTALL_SKIP_COMPLETIONS: "true"
+          ARCHAGENT_INSTALL_SKIP_PATH_UPDATE: "true"
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/ArchAstro/archagents/main/install.sh | bash
+          echo "${{ runner.temp }}/bin" >> "$GITHUB_PATH"
+
+      - name: Validate, lint, and package every solution
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          mkdir -p "$RUNNER_TEMP/dist"
+          found=0
+          for sample in solutions/*/sample.yaml; do
+            found=1
+            dir="$(dirname "$sample")"
+            echo "::group::$dir"
+            archagent validate solution "$dir" --schema-only
+            archagent lint solution "$dir" --strict
+            archagent package solution "$dir" --output-dir "$RUNNER_TEMP/dist"
+            echo "::endgroup::"
+          done
+          if [ "$found" = "0" ]; then
+            echo "No solutions found under solutions/*/sample.yaml" >&2
+            exit 1
+          fi
+
+  # OPTIONAL: full semantic validation of every .aascript against the
+  # platform. Runs only when ARCHASTRO_CI_ACCESS_TOKEN is configured.
+  validate-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for platform credentials
+        id: creds
+        env:
+          TOKEN: ${{ secrets.ARCHASTRO_CI_ACCESS_TOKEN }}
+        run: |
+          if [ -n "$TOKEN" ]; then
+            echo "have=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "have=false" >> "$GITHUB_OUTPUT"
+            echo "ARCHASTRO_CI_ACCESS_TOKEN not set — skipping live script validation."
+          fi
+
+      - name: Install archagent CLI
+        if: steps.creds.outputs.have == 'true'
+        env:
+          ARCHAGENT_INSTALL_DIR: ${{ runner.temp }}/bin
+          ARCHAGENT_INSTALL_SKIP_COMPLETIONS: "true"
+          ARCHAGENT_INSTALL_SKIP_PATH_UPDATE: "true"
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/ArchAstro/archagents/main/install.sh | bash
+          echo "${{ runner.temp }}/bin" >> "$GITHUB_PATH"
+
+      - name: Configure credentials
+        if: steps.creds.outputs.have == 'true'
+        run: |
+          archagent auth set-credentials \
+            --access-token "${{ secrets.ARCHASTRO_CI_ACCESS_TOKEN }}" \
+            --refresh-token "${{ secrets.ARCHASTRO_CI_REFRESH_TOKEN }}" \
+            --app-id "${{ secrets.ARCHASTRO_CI_APP_ID }}" \
+            --org "${{ secrets.ARCHASTRO_CI_ORG_ID }}" \
+            --org-name "${{ secrets.ARCHASTRO_CI_ORG_NAME }}" \
+            --user "${{ secrets.ARCHASTRO_CI_USER_ID }}" \
+            --server "${{ vars.ARCHASTRO_API_URL || 'https://platform.archastro.ai' }}"
+
+      - name: Validate scripts against the platform
+        if: steps.creds.outputs.have == 'true'
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          for sample in solutions/*/sample.yaml; do
+            dir="$(dirname "$sample")"
+            echo "::group::$dir"
+            archagent validate solution "$dir" --scripts-only
+            echo "::endgroup::"
+          done

@@ -1,0 +1,36 @@
+kind: AgentToolTemplate
+# The body lookup_key is prefixed (`osv-tool-`) so it doesn't collide with
+# the Script config of the same logical name (scripts/query-osv.aascript →
+# lookup_key `query-osv`, referenced below via `config_ref`). The
+# platform's per-(app, org, sandbox) config namespace is flat across kinds,
+# so the tool template needs its own distinct lookup_key.
+lookup_key: osv-tool-query-osv
+
+tool_type: custom
+# `name` is the LLM-facing function id (snake_case). `display_name` is the
+# human label the Library renders — REQUIRED on every AgentToolTemplate.
+name: query_osv
+display_name: "Query OSV.dev"
+description: Look up known vulnerabilities for a package version in the OSV.dev database.
+parameters:
+  type: object
+  properties:
+    package_name:
+      type: string
+      description: "The package name, e.g. lodash or requests."
+    ecosystem:
+      type: string
+      description: "The package ecosystem: npm, PyPI, Hex, RubyGems, Go, crates.io, etc."
+    version:
+      type: string
+      description: "The exact version to check, e.g. 4.17.20."
+  required: [package_name, ecosystem, version]
+# `handler_type: script` + `config_ref` wires this tool to the .aascript
+# implementation shipped under scripts/ (matched by lookup_key = filename
+# stem). The `upload_scripts` step uploads it before this template imports.
+handler_type: script
+config_ref: query-osv
+status: active
+
+# OSV.dev is a public API — no env vars or installations required.
+setup_actions: []
